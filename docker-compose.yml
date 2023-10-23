@@ -1,0 +1,15 @@
+version: '3'
+services:
+  fastapi:
+    build: ./fastapi_app
+    ports:
+      - 8001:8000
+  flask:
+    build: ./flask_app
+    ports:
+      - 5001:5000
+  chi:
+    build: ./golang_chi
+    ports:
+      - 3001:3000
+

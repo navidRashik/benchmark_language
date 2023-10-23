@@ -1,0 +1,32 @@
+# Use an official Rust image to create a build artifact
+FROM rust:latest as builder
+
+# Create a new empty shell project
+RUN USER=root cargo new --bin actix_app
+WORKDIR /actix_app
+
+# Copy our manifests into the project
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./Cargo.toml ./Cargo.toml
+
+# Build this project, pulling in necessary dependencies
+RUN cargo build --release
+RUN rm src/*.rs
+# Copy our source code into the project
+COPY . ./src
+
+
+# Build for release.
+RUN cargo build --release
+
+# Our final base
+FROM debian:buster-slim
+
+# Copy the build artifact from the builder stage and create a new user
+RUN useradd actix_app
+COPY --from=builder /actix_app/target/release/actix_app .
+
+# Change to non-root user
+USER actix_app
+
+CMD ["./actix_app"]
